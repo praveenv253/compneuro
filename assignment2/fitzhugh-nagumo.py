@@ -7,25 +7,25 @@ bistability.
 """
 
 # Fitzhugh-Nagumo equations:
-#           dv/dt = v - v^3 / 3 - w + i
-#           dw/dt = 0.08 ( v + 0.7 - 0.8w )
+#           dv/dt = gamma*v - v^3 / 3 - w + i
+#           dw/dt = (v + alpha - beta*w) / tau
 
 import scipy as sp
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fwd_euler_step(v0, w0, dt, i_app):
+def fwd_euler_step(v0, w0, dt, i_app, alpha, beta, gamma, tau):
     """
     Performs a single forward Euler step in simulating the FN model.
     Returns the new value of v and w.
     """
 
-    v = v0 + dt * (v0 - v0**3/3 - w0 + i_app)
-    w = w0 + dt * (0.08 * (v0 + 0.7 - 0.8*w0))
+    v = v0 + dt * (gamma*v0 - v0**3/3 - w0 + i_app)
+    w = w0 + dt * (v0 + alpha - beta*w0) / tau
 
     return v, w
 
-def fwd_euler(v0, w0, dt, i_app, t):
+def fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau):
     """
     Performs a forward Euler computation to determine the time-trace of voltage
     for a given amount of time `t` in time steps of `dt`.
@@ -41,10 +41,10 @@ def fwd_euler(v0, w0, dt, i_app, t):
 
     # Compute nullclines for plotting phase-space evolution
     v_axis = sp.linspace(-2.5, 2.5, 1000)
-    w_nullcline = (v_axis + 0.7) / 0.8
-    v_nullcline = v_axis - v_axis**3 / 3 + i_app[0]
+    w_nullcline = (v_axis + alpha) / beta
+    v_nullcline = gamma * v_axis - v_axis**3 / 3 + i_app[0]
 
-    # Set figure properties
+    # Set figure and subplot properties
     plt.ion()
     plt.figure(0, figsize=(12, 9))
     plt.subplot(311)
@@ -60,12 +60,13 @@ def fwd_euler(v0, w0, dt, i_app, t):
 
     for i in xrange(1, n):
         # Increment time step
-        v[i], w[i] = fwd_euler_step(v[i-1], w[i-1], dt, i_app[i])
+        v[i], w[i] = fwd_euler_step(v[i-1], w[i-1], dt, i_app[i], alpha, beta,
+                                    gamma, tau)
         # Re-compute nullcline in case exciting current has changed
         if i_app[i] != i_app[i-1]:
             v_nullcline += i_app[i] - i_app[i-1]
         # Clear the figure
-        # Plot the phase plane
+        # Plot the phase plane with the nullclines and present position
         plt.subplot(311)
         plt.cla()
         plt.title('Phase plane')
@@ -92,29 +93,48 @@ def excitability():
     dt = 0.3      # Simulation time step
     t = 100       # Total simulation time
     n = int(t / dt)
+    # FN model parameters
+    alpha = 0.7
+    beta = 0.8
+    gamma = 1
+    tau = 1 / 0.08
     i_app = -0.5 * sp.ones(n)  # Applied current
     i_app[0.2*n:0.3*n] = 1 * sp.ones(0.1*n)
 
-    v_t = fwd_euler(v0, w0, dt, i_app, t)
+    v_t = fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau)
 
 def spiking():
     v0 = -0.7     # Initial voltage
     w0 = -0.5     # Initial w-parameter
     dt = 0.3      # Simulation time step
     t = 100       # Total simulation time
+    # FN model parameters
+    alpha = 0.7
+    beta = 0.8
+    gamma = 1
+    tau = 1 / 0.08
     n = int(t / dt)
     i_app = 0.85 * sp.ones(n)  # Applied current
 
-    v_t = fwd_euler(v0, w0, dt, i_app, t)
+    v_t = fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau)
 
 def bistability():
-    v0 = -0.7     # Initial voltage
-    w0 = -0.5     # Initial w-parameter
+    v0 = -2     # Initial voltage
+    w0 = -1     # Initial w-parameter
     i_app = 0.85  # Applied current
     dt = 0.3      # Simulation time step
     t = 100       # Total simulation time
+    # FN model parameters
+    alpha = 0.7
+    beta = 0.8
+    gamma = 2
+    tau = 1 / 0.08
+    n = int(t / dt)
+    i_app = 0.85 * sp.ones(n)  # Applied current
+    impulse_duration = int(0.0275*n)
+    i_app[0.2*n:0.2*n+impulse_duration] = 1 * sp.ones(impulse_duration)
 
-    v_t = fwd_euler(v0, w0, dt, i_app, t)
+    v_t = fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau)
 
 def usage(prog_name):
     print('Usage:')
