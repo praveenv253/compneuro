@@ -1,0 +1,27 @@
+10k iterations, 0.01 uA step:
+single spike at 0.03 uA
+continuous firing (10) at 0.24 uA
+distortion at 0.63 uA
+
+30k iterations, 0.01 uA step:
+single spike at 0.03 uA
+continuous firing (10) at 0.07 uA
+distortion at 0.63 uA
+
+50k iterations, 0.01 uA step:
+(Same as 30k)
+
+10k iterations, 0.0025 uA step:
+single spike at 0.0225 uA
+continuous firing (10) at 0.24 uA
+distortion at 0.63 uA
+
+30k iterations, 0.0025 uA step:
+single spike at 0.0225 uA
+continuous firing (10) at 0.0625 uA
+distortion at 0.63 uA
+
+50k iterations, 0.0025 uA step:
+(Same as 30k)
+
+
