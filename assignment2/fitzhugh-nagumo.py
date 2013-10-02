@@ -14,16 +14,19 @@ import scipy as sp
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def fwd_euler_step(v0, w0, dt, i_app, alpha, beta, gamma, tau):
     """
     Performs a single forward Euler step in simulating the FN model.
     Returns the new value of v and w.
     """
 
+    # Discrete-time representation of the differential equations
     v = v0 + dt * (gamma*v0 - v0**3/3 - w0 + i_app)
     w = w0 + dt * (v0 + alpha - beta*w0) / tau
 
     return v, w
+
 
 def fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau):
     """
@@ -87,6 +90,7 @@ def fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau):
     # Return the voltage trace
     return v
 
+
 def excitability():
     v0 = -0.7     # Initial voltage
     w0 = -0.5     # Initial w-parameter
@@ -103,6 +107,7 @@ def excitability():
 
     v_t = fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau)
 
+
 def spiking():
     v0 = -0.7     # Initial voltage
     w0 = -0.5     # Initial w-parameter
@@ -118,12 +123,32 @@ def spiking():
 
     v_t = fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau)
 
+
+def depolarization():
+    v0 = -0.7     # Initial voltage
+    w0 = -0.5     # Initial w-parameter
+    dt = 0.3      # Simulation time step
+    t = 100       # Total simulation time
+    n = int(t / dt)
+
+    # FN model parameters
+    alpha = 0.7
+    beta = 0.8
+    gamma = 1
+    tau = 1 / 0.08
+    i_app = 2 * sp.ones(n)  # Applied current
+    #i_app[0.2*n:0.3*n] = 1 * sp.ones(0.1*n)
+
+    v_t = fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau)
+
+
 def bistability():
-    v0 = -2     # Initial voltage
-    w0 = -1     # Initial w-parameter
+    v0 = -2       # Initial voltage
+    w0 = -1       # Initial w-parameter
     i_app = 0.85  # Applied current
     dt = 0.3      # Simulation time step
     t = 100       # Total simulation time
+
     # FN model parameters
     alpha = 0.7
     beta = 0.8
@@ -131,15 +156,18 @@ def bistability():
     tau = 1 / 0.08
     n = int(t / dt)
     i_app = 0.85 * sp.ones(n)  # Applied current
-    impulse_duration = int(0.0275*n)
+    impulse_duration = int(0.03*n)
     i_app[0.2*n:0.2*n+impulse_duration] = 1 * sp.ones(impulse_duration)
+    i_app[0.7*n:0.7*n+impulse_duration] = 0.7 * sp.ones(impulse_duration)
 
     v_t = fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau)
 
+
 def usage(prog_name):
     print('Usage:')
-    print('    ' + str(prog_name) + ' [ --excitability | --spiking '
-                                    '| --bistability ]')
+    print('    ' + str(prog_name) + ' --excitability | --spiking |'
+                                    ' --bistability | --depolarization')
+
 
 if __name__ == '__main__':
     import sys
@@ -152,5 +180,7 @@ if __name__ == '__main__':
         spiking()
     elif sys.argv[1] == '--bistability':
         bistability()
+    elif sys.argv[1] == '--depolarization':
+        depolarization()
     else:
         usage(sys.argv[0])
