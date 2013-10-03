@@ -1,0 +1,5 @@
+# Ignore random temporary files
+*~
+
+# Ignore compiled reports
+*.pdf
