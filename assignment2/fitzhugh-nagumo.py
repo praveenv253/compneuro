@@ -221,28 +221,38 @@ def thresholds():
     beta = 0.8
     gamma = 1
     tau = 1 / 0.08
-    currents = sp.linspace(-0.5, 1.5, 100)
+    # List of currents to check for thresholds
+    i_base = -0.5
+    currents = sp.linspace(i_base, 1.5, 100)
 
     excitability_threshold = None
     depolarization_threshold = None
 
     for i in currents:
         i_app = i * sp.ones(n)  # Applied current
+        # Find the voltage trace for this value of input current.
         v_t = fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau, False)
+        # Calculate the firing rate for this voltage trace.
         f = calc_firing_rate(v_t, t)
+        # Set the excitability threshold the first time spiking appears.
         if f and excitability_threshold is None:
-            excitability_threshold = i
+            excitability_threshold = i - i_base
+        # Set the depolarization threshold the first time spiking ceases.
+        # (i.e, spiking has appeared, but no longer appears now)
         if( f == 0 and excitability_threshold is not None
                    and depolarization_threshold is None ):
-            depolarization_threshold = i
+            depolarization_threshold = i - i_base
 
-    print 'Excitability threshold: %f' % excitability_threshold
-    print 'Depolarization threshold: %f' % depolarization_threshold
+    print( 'Excitability threshold (over base current): '
+           + str(excitability_threshold) )
+    print( 'Depolarization threshold (over base current): '
+           + str(depolarization_threshold) )
 
     return excitability_threshold, depolarization_threshold
 
 
 def usage(prog_name):
+    """Print help."""
     print('Usage:')
     print('    ' + str(prog_name) + ' --excitability | --spiking |'
                                     ' --bistability | --depolarization |'
