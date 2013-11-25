@@ -1,0 +1,13 @@
+Error curves png files nomenclature
+-----------------------------------
+
+error-curve-<num_hidden_neurons>-<eta>[var<ratio>]-<error_threshold>[-<num_training_images>].png
+
+If var<ratio> is mentioned with eta, it means that an adaptive step size is
+used with a starting value of the given eta. eta does not vary on each step
+size, but instead varies whenever the average error of the last five iterations
+begins increasing rather than decreasing. The error is multiplied by <ratio>
+every such time. Default ratio is 1, that is, this is not done.
+
+If <num_training_images> is not specified, default number of tarining images is
+1000.
