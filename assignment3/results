@@ -1,0 +1,46 @@
+num_hidden_neurons - eta - error_threshold - num_trining_images=1000
+
+10-0.5-0.5
+	- converged in 62 epochs
+	- 66.8% correct on test set
+
+20-0.5-0.5
+	- eta appears to be too large
+	- coverged in 361 epochs
+	- 50.5% correct on test set
+
+20-0.3-0.5
+	- converged in 240 epochs
+	- 53.8% correct on test set
+
+40-0.3-0.5-100
+	- converged in 437 epochs
+	- 44.8% of test set correct
+
+60-0.3-0.5-100
+	- converged in 487 epochs
+	- 38.1% of test set correct
+
+80-0.3-0.5-100
+	- coverged in 488 epochs
+	- 42.9% of test set correct
+
+100-0.3-0.5-100
+	- converged in 514 epochs
+	- 39.1% correct on test set
+
+40-0.7var2/3-0.5
+	- converged in 168 epochs
+	- 51.2% correct
+
+60-0.7var2/3-0.5
+	- converged in 249 epochs
+	- 54.1% correct
+
+80-0.7var2/3-0.5
+	- converged in 227 epochs
+	- 49.5% correct
+
+100-0.7var2/3-0.5
+	- converged in 1954 epochs
+	- 48.9% correct
