@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Program to simulate the Fitzhugh-Nagumo model of the neuron for different
@@ -55,9 +55,9 @@ def fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau, plot=True):
         phase_diagram.set_title('Phase plane')
         phase_diagram.set_xlabel(r'$v$')
         phase_diagram.set_ylabel(r'$w$')
-        [vnc,] = phase_diagram.plot(v_axis, v_nullcline, 'b-')
-        [wnc,] = phase_diagram.plot(v_axis, w_nullcline, 'g-')
-        [pos,] = phase_diagram.plot(0, 0, 'ro')
+        [vnc,] = phase_diagram.plot(v_axis, v_nullcline, 'C0-')
+        [wnc,] = phase_diagram.plot(v_axis, w_nullcline, 'C1-')
+        [pos,] = phase_diagram.plot(0, 0, 'C2o')
         vtrace = fig.add_subplot(312)
         vtrace.set_title('Voltage trace')
         vtrace.set_xlabel(r'$t$')
@@ -68,7 +68,7 @@ def fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau, plot=True):
         itrace.set_ylabel(r'$I_{app}$')
         fig.tight_layout(pad=2)
 
-    for i in xrange(1, n):
+    for i in range(1, n):
         # Increment time step
         v[i], w[i] = fwd_euler_step(v[i-1], w[i-1], dt, i_app[i], alpha, beta,
                                     gamma, tau)
@@ -80,13 +80,13 @@ def fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau, plot=True):
             # Plot the phase diagram
             phase_diagram.lines.remove(vnc)
             phase_diagram.lines.remove(pos)
-            [vnc,] = phase_diagram.plot(v_axis, v_nullcline, 'b-')
+            [vnc,] = phase_diagram.plot(v_axis, v_nullcline, 'C0-')
             phase_diagram.plot([v[i-1], v[i]], [w[i-1], w[i]], 'k-')
-            [pos,] = phase_diagram.plot(v[i], w[i], 'ro')
+            [pos,] = phase_diagram.plot(v[i], w[i], 'C2o')
             # Plot the v-trace
-            vtrace.plot([(i-1)*dt, i*dt], [v[i-1], v[i]], 'b-')
+            vtrace.plot([(i-1)*dt, i*dt], [v[i-1], v[i]], 'C0-')
             # Plot the i-trace
-            itrace.plot([(i-1)*dt, i*dt], [i_app[i-1], i_app[i]], 'b-')
+            itrace.plot([(i-1)*dt, i*dt], [i_app[i-1], i_app[i]], 'C0-')
             # Redraw the figure
             plt.draw()
 
@@ -243,10 +243,10 @@ def thresholds():
                    and depolarization_threshold is None ):
             depolarization_threshold = i - i_base
 
-    print( 'Excitability threshold (over base current): '
-           + str(excitability_threshold) )
-    print( 'Depolarization threshold (over base current): '
-           + str(depolarization_threshold) )
+    print(( 'Excitability threshold (over base current): '
+           + str(excitability_threshold) ))
+    print(( 'Depolarization threshold (over base current): '
+           + str(depolarization_threshold) ))
 
     return excitability_threshold, depolarization_threshold
 
@@ -254,9 +254,9 @@ def thresholds():
 def usage(prog_name):
     """Print help."""
     print('Usage:')
-    print('    ' + str(prog_name) + ' --excitability | --spiking |'
+    print(('    ' + str(prog_name) + ' --excitability | --spiking |'
                                     ' --bistability | --depolarization |'
-                                    ' --thresholds')
+                                    ' --thresholds'))
 
 
 if __name__ == '__main__':
