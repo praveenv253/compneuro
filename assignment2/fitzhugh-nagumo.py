@@ -50,6 +50,29 @@ def fwd_euler_step(v0, w0, dt, i_app, alpha, beta, gamma, tau):
     return v, w
 
 
+def bwd_euler_step(v0, w0, dt, i_app, alpha, beta, gamma, tau):
+    """
+    Performs a single backward Euler step in simulating the FN model.
+    Returns the new value of v and w.
+    """
+
+    # (v - v0) / dt = gamma*v - v^3 / 3 - w + i
+    # (w - w0) / dt = (v + alpha - beta*w) / tau
+
+    sigma = (1 + beta * dt / tau)
+    c = - (w0 + dt / tau * alpha) * dt / sigma + i_app * dt + v0
+    b = - dt**2 / tau / sigma + gamma * dt - 1
+    a = - dt / 3
+
+    roots = np.polynomial.polynomial.polyroots([c, b, 0, a])
+    roots = roots[roots.real == roots]
+    # In case there are >1 real roots, take the one nearest to v0
+    v = roots[np.argmin(abs(roots - v0))].real
+    w = w0 / sigma + dt / tau / sigma * (v + alpha)
+
+    return v, w
+
+
 def fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau, plot=True):
     """
     Performs a forward Euler computation to determine the time-trace of voltage
@@ -72,7 +95,7 @@ def fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau, plot=True):
 
     for i in range(1, n):
         # Increment time step
-        v[i], w[i] = fwd_euler_step(v[i-1], w[i-1], dt, i_app[i], alpha, beta,
+        v[i], w[i] = bwd_euler_step(v[i-1], w[i-1], dt, i_app[i], alpha, beta,
                                     gamma, tau)
         # Re-compute nullcline in case exciting current has changed
         v_nullcline[i] = v_nullcline[i-1] + i_app[i] - i_app[i-1]
@@ -210,6 +233,29 @@ def bistability():
     v_t = fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau)
 
 
+def sinusoid():
+    """Behaviour of the FN-neuron for sinusoidal"""
+
+    v0 = -1.5     # Initial voltage
+    w0 = -0.5     # Initial w-parameter
+    dt = 0.03     # Simulation time step
+    t = 100       # Total simulation time
+    n = int(t / dt)
+
+    f = 0.05
+    ampl = 0.5
+    i0 = 0.5
+    i_app = i0 + ampl * np.sin(2*np.pi * f * np.arange(n))
+
+    # FN model parameters
+    alpha = 0.7
+    beta = 0.8
+    gamma = 1
+    tau = 1 / 0.08
+
+    v_t = fwd_euler(v0, w0, dt, i_app, t, alpha, beta, gamma, tau)
+
+
 def calc_firing_rate(v_trace, tot_time):
     """Calculates the firing rate of the neuron, given a voltage trace."""
 
@@ -284,7 +330,7 @@ def usage(prog_name):
     print('Usage:')
     print('    ' + str(prog_name) + ' --excitability | --spiking |'
                                     ' --bistability | --depolarization |'
-                                    ' --thresholds')
+                                    ' --thresholds | --sinusoid')
 
 
 if __name__ == '__main__':
@@ -302,5 +348,7 @@ if __name__ == '__main__':
         depolarization()
     elif sys.argv[1] == '--thresholds':
         thresholds()
+    elif sys.argv[1] == '--sinusoid':
+        sinusoid()
     else:
         usage(sys.argv[0])
